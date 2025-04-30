@@ -1,0 +1,81 @@
+/* Tailwind Config */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* Custom Animations */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 0.9;
+        transform: scale(1.1);
+    }
+    80% {
+        opacity: 1;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Custom Classes */
+.loading-shimmer {
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0) 0%, 
+        rgba(255,255,255,0.2) 50%, 
+        rgba(255,255,255,0) 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+}
+
+.number-ball {
+    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: all 0.3s ease;
+}
+
+.number-ball:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+/* Custom Theme Colors */
+:root {
+    --color-megasena: #009B3A;
+    --color-gold: #FFD700;
+    --color-deepblue: #1a365d;
+}
+
+/* Custom Utility Classes */
+.bg-megasena {
+    background-color: var(--color-megasena);
+}
+
+.text-megasena {
+    color: var(--color-megasena);
+}
+
+.text-gold {
+    color: var(--color-gold);
+}
+
+.text-deepblue {
+    color: var(--color-deepblue);
+}
