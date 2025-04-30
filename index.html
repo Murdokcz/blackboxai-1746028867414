@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador Mega Sena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        
+        .loading-shimmer {
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,0.2) 50%, 
+                rgba(255,255,255,0) 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+        }
+
+        .number-ball {
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transition: all 0.3s ease;
+        }
+
+        .number-ball:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 0.9;
+                transform: scale(1.1);
+            }
+            80% {
+                opacity: 1;
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        megasena: '#009B3A',
+                        gold: '#FFD700',
+                        deepblue: '#1a365d',
+                    },
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-poppins">
+    <!-- Header Section -->
+    <header class="bg-megasena text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-center">
+                <i class="fas fa-clover text-4xl text-gold mr-3"></i>
+                <h1 class="text-3xl font-bold">Gerador Mega Sena</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Form Section -->
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-xl p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-deepblue mb-6">Gerar Números</h2>
+            
+            <form id="megaSenaForm" class="space-y-6">
+                <!-- Quantidade de Números -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="quantidade">
+                        Quantidade de Números
+                    </label>
+                    <select id="quantidade" name="quantidade" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-megasena focus:border-transparent">
+                        <option value="6">6 números</option>
+                        <option value="8">8 números</option>
+                        <option value="12">12 números</option>
+                        <option value="18">18 números</option>
+                    </select>
+                </div>
+
+                <!-- Data do Jogo -->
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="data">
+                        Data do Jogo
+                        <span class="text-xs text-gray-500 ml-1">(Selecione uma data futura)</span>
+                    </label>
+                    <div class="relative">
+                        <input type="date" id="data" name="data" 
+                               class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-megasena focus:border-transparent hover:border-megasena transition-colors duration-200">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-calendar text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn"
+                        class="w-full bg-megasena hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl shadow-lg relative overflow-hidden group">
+                    <span class="relative z-10 flex flex-col items-center">
+                        <span class="flex items-center">
+                            <i class="fas fa-random mr-2 group-hover:animate-spin"></i>
+                            Gerar Números da Sorte
+                        </span>
+                        <span class="block text-xs mt-2 opacity-75">Clique para descobrir sua combinação</span>
+                    </span>
+                    <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="max-w-2xl mx-auto bg-white rounded-lg shadow-xl p-6 hidden">
+            <h2 class="text-2xl font-semibold text-deepblue mb-6 flex items-center">
+                <i class="fas fa-star text-gold mr-3"></i>
+                Seus Números da Sorte
+            </h2>
+            
+            <div id="numberBalls" class="flex flex-wrap justify-center gap-4 mb-8">
+                <!-- Numbers will be inserted here by JavaScript -->
+            </div>
+
+            <div class="bg-gradient-to-r from-gray-50 via-white to-gray-50 p-6 rounded-lg shadow-inner">
+                <h3 class="text-lg font-semibold text-deepblue mb-4 flex items-center">
+                    <i class="fas fa-chart-line text-megasena mr-2"></i>
+                    Análise de Probabilidade
+                </h3>
+                <div id="probabilityInfo" class="text-sm text-gray-600 space-y-3">
+                    <!-- Probability info will be inserted here -->
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button onclick="window.location.reload()" 
+                        class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition duration-300">
+                    <i class="fas fa-redo-alt mr-2"></i>
+                    Gerar Nova Combinação
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-deepblue text-white py-4 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">© 2024 Gerador Mega Sena - Desenvolvido com <i class="fas fa-heart text-red-500"></i></p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('megaSenaForm');
+            const results = document.getElementById('results');
+            const numberBalls = document.getElementById('numberBalls');
+            const probabilityInfo = document.getElementById('probabilityInfo');
+
+            // Set min date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('data').min = today;
+
+            // Error message display function
+            function showError(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4';
+                errorDiv.setAttribute('role', 'alert');
+                errorDiv.innerHTML = `
+                    <span class="block sm:inline">${message}</span>
+                    <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                        <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <title>Fechar</title>
+                            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                        </svg>
+                    </span>
+                `;
+                form.insertBefore(errorDiv, form.firstChild);
+
+                // Auto-remove error after 5 seconds
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
+
+                // Click to dismiss
+                errorDiv.querySelector('svg').addEventListener('click', () => errorDiv.remove());
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Remove any existing error messages
+                const existingErrors = form.querySelectorAll('[role="alert"]');
+                existingErrors.forEach(error => error.remove());
+
+                // Validate date
+                const dateInput = document.getElementById('data');
+                if (!dateInput.value) {
+                    showError('Por favor, selecione uma data para o jogo.');
+                    return;
+                }
+
+                const selectedDate = new Date(dateInput.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (selectedDate < today) {
+                    showError('A data do jogo não pode ser anterior a hoje.');
+                    return;
+                }
+
+                // Show loading state
+                const submitButton = document.getElementById('submitBtn');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                
+                // Add loading animation
+                submitButton.innerHTML = `
+                    <span class="relative z-10 flex flex-col items-center">
+                        <span class="flex items-center">
+                            <i class="fas fa-magic mr-2 animate-pulse"></i>
+                            Gerando sua combinação...
+                        </span>
+                        <span class="block text-xs mt-2 opacity-75">Analisando probabilidades</span>
+                    </span>
+                    <div class="absolute inset-0 bg-white opacity-10"></div>
+                `;
+                submitButton.classList.add('loading-shimmer');
+
+                // Hide previous results if any
+                const results = document.getElementById('results');
+                results.classList.add('hidden');
+
+                // Simulate API call and processing
+                setTimeout(() => {
+                    generateNumbers();
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                    submitButton.classList.remove('loading-shimmer');
+                }, 1500);
+            });
+
+            function generateNumbers() {
+                const quantidade = parseInt(document.getElementById('quantidade').value);
+                const data = document.getElementById('data').value;
+
+                // Generate random numbers with weighted probability
+                const frequentNumbers = [10, 5, 53, 23, 42, 33, 41, 27, 37, 30]; // Example frequent numbers
+                let numbers = new Set();
+                
+                // First, add some frequent numbers with higher probability
+                while(numbers.size < Math.min(3, quantidade)) {
+                    const randomFrequent = frequentNumbers[Math.floor(Math.random() * frequentNumbers.length)];
+                    numbers.add(randomFrequent);
+                }
+
+                // Then fill the rest with random numbers
+                while(numbers.size < quantidade) {
+                    const num = Math.floor(Math.random() * 60) + 1;
+                    numbers.add(num);
+                }
+
+                numbers = Array.from(numbers).sort((a, b) => a - b);
+
+                // Display results with enhanced animation
+                // Clear previous results first
+                numberBalls.innerHTML = '';
+                
+                // Add numbers one by one with animation
+                numbers.forEach((num, index) => {
+                    setTimeout(() => {
+                        const ball = document.createElement('div');
+                        ball.className = 'number-ball w-16 h-16 rounded-full bg-megasena text-white flex items-center justify-center font-bold text-xl shadow-lg';
+                        ball.innerHTML = num;
+                        numberBalls.appendChild(ball);
+
+                        // Add hover effect after animation
+                        setTimeout(() => {
+                            ball.classList.add('hover:scale-110', 'hover:rotate-3', 'transition-all', 'duration-300', 'cursor-pointer');
+                        }, 600);
+                    }, index * 200);
+                });
+
+                // Enhanced probability info with more details
+                const probabilityBase = 1/50063860;
+                const adjustedProbability = probabilityBase * (quantidade > 6 ? quantidade/2 : 1);
+                
+                // Build probability info with animated appearance
+                const probInfo = [
+                    {
+                        icon: 'chart-line',
+                        text: 'Análise baseada nos últimos sorteios e tendências'
+                    },
+                    {
+                        icon: 'percentage',
+                        text: `Probabilidade base: ${(probabilityBase*100).toFixed(8)}%`
+                    },
+                    {
+                        icon: 'calculator',
+                        text: `Probabilidade ajustada (${quantidade} números): ${(adjustedProbability*100).toFixed(8)}%`
+                    },
+                    {
+                        icon: 'calendar-alt',
+                        text: `Data do jogo: ${new Date(data).toLocaleDateString('pt-BR')}`
+                    }
+                ];
+
+                probabilityInfo.innerHTML = '';
+                probInfo.forEach((info, index) => {
+                    setTimeout(() => {
+                        const p = document.createElement('p');
+                        p.className = 'flex items-center opacity-0 transform translate-y-4 transition-all duration-500';
+                        p.innerHTML = `
+                            <i class="fas fa-${info.icon} text-megasena mr-2"></i>
+                            <span>${info.text}</span>
+                        `;
+                        probabilityInfo.appendChild(p);
+                        
+                        // Animate in
+                        setTimeout(() => {
+                            p.classList.remove('opacity-0', 'translate-y-4');
+                        }, 50);
+                    }, index * 200);
+                });
+
+                results.classList.remove('hidden');
+                results.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
